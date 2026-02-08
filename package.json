@@ -1,0 +1,12 @@
+{
+  "name": "agentic-digital-twin",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "server": "npm --workspace apps/server run dev",
+    "web": "npm --workspace apps/web run dev"
+  }
+}

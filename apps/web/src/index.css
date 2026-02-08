@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+    Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(99, 102, 241, 0.18), transparent 55%),
+    radial-gradient(1000px 700px at 80% 30%, rgba(16, 185, 129, 0.14), transparent 55%),
+    radial-gradient(900px 700px at 40% 90%, rgba(236, 72, 153, 0.10), transparent 55%),
+    #070b14;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Nice selection */
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+}
+
+/* Subtle grid texture (FIXED: removed mask that caused band) */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+  opacity: 0.55; /* safe fade */
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+/* Soft ring */
+.ring-soft {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10) inset;
+}
+

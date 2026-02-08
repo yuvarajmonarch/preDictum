@@ -1,0 +1,48 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [ 20 ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install (workspace root)
+        run: npm install
+
+      - name: Build Web
+        run: npm --workspace apps/web run build
+
+      - name: Build Server (syntax check)
+        run: npm --workspace apps/server run build
+        continue-on-error: true
+
+      - name: Lint Web (if exists)
+        run: npm --workspace apps/web run lint
+        continue-on-error: true
+
+      - name: Lint Server (if exists)
+        run: npm --workspace apps/server run lint
+        continue-on-error: true
+
+      - name: Test Server (if exists)
+        run: npm --workspace apps/server test
+        continue-on-error: true

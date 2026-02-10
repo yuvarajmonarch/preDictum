@@ -208,7 +208,7 @@ export async function runAgentAutomation({
   }
 
   const octokit = githubClient.getOctokit();
-  const { owner, name } = githubClient.parseRepo(repo);
+  const { owner, repo: repoName } = githubClient.parseRepo(repo);
 
   try {
     // 1) Create alternate branch from base
@@ -226,14 +226,14 @@ export async function runAgentAutomation({
     const baseSha = await githubBranch.getBranchSha({
       octokit,
       owner,
-      repo: name,
+      repo: repoName,
       branch: baseBranch
     });
 
     await githubBranch.createBranch({
       octokit,
       owner,
-      repo: name,
+      repo: repoName,
       newBranch: altBranch,
       fromSha: baseSha
     });
@@ -263,7 +263,7 @@ export async function runAgentAutomation({
     const fileObj = await githubCommit.getFile({
       octokit,
       owner,
-      repo: name,
+      repo: repoName,
       path: editFile,
       branch: altBranch
     });
@@ -294,7 +294,7 @@ export async function runAgentAutomation({
     await githubCommit.updateFile({
       octokit,
       owner,
-      repo: name,
+      repo: repoName,
       path: editFile,
       branch: altBranch,
       sha: fileObj.sha,
@@ -327,7 +327,7 @@ export async function runAgentAutomation({
     const prUrl = await githubPR.createDraftPR({
       octokit,
       owner,
-      repo: name,
+      repo: repoName,
       head: altBranch,
       base: baseBranch,
       title: `Agent Automation (run ${runId})`,

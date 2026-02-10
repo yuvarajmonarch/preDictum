@@ -21,16 +21,12 @@ export function getOctokit() {
 /**
  * repoFull: "owner/name"
  */
-export function parseRepo(repoFull) {
-  const str = String(repoFull || "").trim();
-  const parts = str.split("/");
-  if (parts.length !== 2 || !parts[0] || !parts[1]) {
-    const err = new Error(`Invalid repo "${repoFull}". Use "owner/repo" format.`);
-    err.status = 400;
-    throw err;
-  }
-  return { owner: parts[0], name: parts[1] };
+export function parseRepo(full) {
+  const [owner, repo] = String(full || "").split("/");
+  if (!owner || !repo) throw new Error("Invalid repo format. Use owner/repo");
+  return { owner, repo };
 }
+
 
 /**
  * List repos accessible by current token (viewer)

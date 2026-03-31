@@ -15,16 +15,30 @@ body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
     Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background: radial-gradient(1200px 800px at 20% 10%, rgba(99, 102, 241, 0.18), transparent 55%),
-    radial-gradient(1000px 700px at 80% 30%, rgba(16, 185, 129, 0.14), transparent 55%),
-    radial-gradient(900px 700px at 40% 90%, rgba(236, 72, 153, 0.10), transparent 55%),
-    #070b14;
+  background: linear-gradient(
+  to bottom right,
+  #020617,
+  #020617,
+  #0b1220
+);
   color: rgba(255, 255, 255, 0.92);
 }
 
 /* Nice selection */
 ::selection {
   background: rgba(99, 102, 241, 0.35);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at 20% 20%,
+    rgba(99, 102, 241, 0.08),
+    transparent 60%
+  );
+  pointer-events: none;
 }
 
 /* Subtle grid texture (FIXED: removed mask that caused band) */
@@ -39,10 +53,9 @@ body {
 
 /* Glass card */
 .glass {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(10px);
+  background: #0b1220;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* Soft ring */

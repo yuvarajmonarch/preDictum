@@ -2,6 +2,7 @@ import http from "http";
 import { createApp } from "./app.js";
 import { env } from "./config/env.js";
 import { attachTwinWebSocket } from "./services/twin/twin.ws.js";
+import "./config/env.js";   // or wherever dotenv.config() runs
 
 const app = createApp();
 const server = http.createServer(app);

@@ -15,6 +15,19 @@ import { generatePatchedContent, patchSummary } from "./patcher.js";
  * github/twin/log modules are not created yet. Once you add them, it will use them.
  */
 
+function extractAgentBlock(text) {
+  const start = "<!-- AGENTIC_TWIN:START -->";
+  const end = "<!-- AGENTIC_TWIN:END -->";
+  if (!text || !text.includes(start) || !text.includes(end)) return "";
+  return text.split(start)[1].split(end)[0].trim();
+}
+
+function safeTrimBlock(s, max = 3000) {
+  const str = String(s || "").trim();
+  if (!str) return "";
+  return str.length > max ? str.slice(0, max) + "\n…(trimmed)" : str;
+}
+
 function makeAltBranch(prefix = "alternate") {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, "0");
@@ -23,6 +36,21 @@ function makeAltBranch(prefix = "alternate") {
     `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
   return `${prefix}/ai-${stamp}`;
 }
+
+function extractAgentSection(md = "") {
+  const start = "<!-- AGENTIC_TWIN:START -->";
+  const end = "<!-- AGENTIC_TWIN:END -->";
+  const i = md.indexOf(start);
+  const j = md.indexOf(end);
+  if (i === -1 || j === -1 || j <= i) return "";
+  return md.slice(i + start.length, j).trim();
+}
+
+function clip(text, n = 1200) {
+  const s = String(text || "").trim();
+  return s.length > n ? s.slice(0, n) + "\n\n...(truncated)" : s;
+}
+
 
 async function safeImport(path) {
   try {
@@ -269,12 +297,26 @@ export async function runAgentAutomation({
     });
 
     // 3) Patch content
-    const newContent = generatePatchedContent({
-      oldContent: fileObj.content,
+    // ---- Transform using Gemini ----
+
+    const transformer = await safeImport("./transformer.js");
+    if (!transformer?.transformWithGemini) {
+      const err = new Error("Missing transformer.js for Gemini");
+      err.status = 500;
+      throw err;
+    }
+
+    const decoded = Buffer.from(fileObj.content, "base64").toString("utf8");
+
+    const updatedText = await transformer.transformWithGemini({
       prompt,
-      runId,
-      actor
+      filePath: editFile,
+      oldText: decoded,
+      rules: { maxInputChars: 40000 }
     });
+
+    const newContent = Buffer.from(updatedText, "utf8").toString("base64");
+
 
     await logStep(runId, "agent.patch", `Patch prepared for ${editFile}`, {
       bytesOld: fileObj.content?.length || 0,
@@ -324,24 +366,32 @@ export async function runAgentAutomation({
 
     await logStep(runId, "github.pr.create", "Creating draft PR");
 
-    const prUrl = await githubPR.createDraftPR({
-      octokit,
-      owner,
-      repo: repoName,
-      head: altBranch,
-      base: baseBranch,
-      title: `Agent Automation (run ${runId})`,
-      body: [
-        "This PR was created by the agent automation.",
-        "",
-        `- Run ID: ${runId}`,
-        `- Base: ${baseBranch}`,
-        `- Head: ${altBranch}`,
-        `- File: ${editFile}`,
-        "",
-        `Request: ${prompt}`
-      ].join("\n")
-    });
+    const agentBlock = safeTrimBlock(extractAgentBlock(newContent));
+
+  const prUrl = await githubPR.createDraftPR({
+    octokit,
+    owner,
+    repo: repoName,
+    head: altBranch,
+    base: baseBranch,
+    title: `Agent Automation (run ${runId})`,
+    body: [
+      "This PR was created by the agent automation.",
+      "",
+      `- Run ID: ${runId}`,
+      `- Base: ${baseBranch}`,
+      `- Head: ${altBranch}`,
+      `- File: ${editFile}`,
+      "",
+      `Request: ${prompt}`,
+      "",
+      "### Agent Response (preview)",
+      "",
+      agentPreview ? agentPreview : "_(No agent output found in README section)_"
+    ].join("\n")
+  });
+
+
 
     await updateRunRow(runId, { status: "DONE", prUrl, altBranch });
 

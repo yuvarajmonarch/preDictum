@@ -20,9 +20,17 @@ export const env = Object.freeze({
     .map((s) => s.trim())
     .filter(Boolean),
 
-  // Optional now, required when you implement GitHub calls
+  // GitHub
   GITHUB_TOKEN: process.env.GITHUB_TOKEN || "",
 
-  // Optional now, required when you implement SQLite
-  DB_PATH: process.env.DB_PATH || "./data/app.sqlite"
+  // Database
+  DB_PATH: process.env.DB_PATH || "./data/app.sqlite",
+
+  // ===== LLM CONFIG =====
+
+  // Only required when using Gemini
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || "",
+  GEMINI_MODEL: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+
 });
+console.log("GEMINI KEY:", process.env.GEMINI_API_KEY);

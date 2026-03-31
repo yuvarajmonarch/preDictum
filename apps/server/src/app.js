@@ -12,6 +12,8 @@ import githubRoutes from "./routes/github.routes.js";
 import twinRoutes from "./routes/twin.routes.js";
 import logsRoutes from "./routes/logs.routes.js";
 
+import llmRoutes from "./routes/llm.routes.js";
+
 const logger = pino({
   level: env.NODE_ENV === "production" ? "info" : "debug",
   transport:
@@ -84,5 +86,7 @@ export function createApp() {
     });
   });
 
-  return app;
-}
+  //gemini
+  app.use("/api/llm", llmRoutes);
+
+  return app;}
